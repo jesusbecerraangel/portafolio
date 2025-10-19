@@ -1,0 +1,1111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>POV — Folder con hojas (apertura lateral y pestaña derecha)</title>
+  
+  <style>
+    /* ===== ESTILOS GENERALES ===== */
+    html, body {
+      height: 500vh;
+      margin: 0;
+      font-family: "Courier New", Courier, monospace; /* Fuente tipo máquina de escribir */
+      overflow-x: hidden;
+      background-image: url("bg3.jpg");
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* ===== ESTRUCTURA PRINCIPAL ===== */
+    .desk {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 2000px;
+    }
+
+    .folder {
+      position: relative;
+      width: 640px;
+      height: 800px;
+      background: #f2d87c;
+      border-radius: 6px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      transform-style: preserve-3d;
+    }
+
+    /* ===== COMPONENTES DEL FOLDER ===== */
+    .folder-tab {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: calc(640px * 0.3125);
+      height: calc(800px * 0.075);
+      background: #f5e08f;
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      z-index: 1001;
+    }
+
+    .folder-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f5e08f;
+      border-radius: 6px;
+      box-shadow: inset -3px 0 0 rgba(0,0,0,0.1);
+      transform-origin: left center;
+      z-index: 1000;
+    }
+
+    .lash {
+      position: absolute;
+      top: 0px;
+      right: -30px;
+      width: 50px;
+      height: 400px;
+      background: #f5e08f;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    /* ===== CONTENEDOR DE HOJAS ===== */
+    .deck {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      width: 90%;
+      height: 90%;
+      overflow: visible;
+    }
+
+    /* ===== HOJAS INDIVIDUALES ===== */
+    .sheet {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0px;
+      background: #fdf6e3; /* Color papel manila */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transform-origin: center;
+      display: block;
+      justify-content: center;
+      align-items: flex-start;
+      font-weight: 600;
+      color: #222;
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* Apilado inicial de las hojas */
+    .deck .sheet:nth-child(1) { transform: translateY(0px); }
+    .deck .sheet:nth-child(2) { transform: translateY(2px); }
+    .deck .sheet:nth-child(3) { transform: translateY(4px); }
+    .deck .sheet:nth-child(4) { transform: translateY(6px); }
+    .deck .sheet:nth-child(5) { transform: translateY(8px); }
+
+    /* ===== CONTENIDO DE LAS HOJAS ===== */
+    .content-sheet, .content {
+      position: relative;
+      float: left;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      box-sizing: border-box;
+      padding: 30px;
+    }
+
+    .content {
+      padding: 20px 30px;
+    }
+
+    /* ===== ELEMENTOS VISUALES ===== */
+    .foto {
+      position: absolute;
+      right: 5px;
+      top: -5px;
+      width: 30%;
+      transform: rotate(3deg);
+      padding: 10px;
+      background: white;
+      box-sizing: border-box;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    }
+
+    .clip {
+      position: absolute;
+      top: -15px;
+      right: 30px;
+      width: 20px;
+    }
+
+    .conf-b, .exp {
+      position: absolute;
+      z-index: -1000;
+      opacity: 0.2;
+    }
+
+    .conf-b {
+      bottom: 50px;
+      left: calc(20%);
+      width: 60%;
+    }
+
+    .exp {
+      bottom: 70px;
+      left: 20%;
+      width: 70%;
+      transform: rotate(-12deg);
+    }
+
+    /* ===== CONTENEDORES ESPECIALES ===== */
+    .content-folder {
+      position: relative;
+      float: left;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .content-folder .confidential {
+      width: 40%;
+      position: absolute;
+      top: 30%;
+      left: 30%;
+      overflow: hidden;
+    }
+
+    .content-folder .ts {
+      position: absolute;
+      width: 70%;
+      right: -50px;
+      bottom: 45px;
+      transform: rotate(-25deg);
+    }
+
+    .content-icon {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .content-icon .icon-bg {
+      position: absolute;
+      width: 500px;
+      opacity: 0.1;
+    }
+
+    /* ===== NOTAS ADHESIVAS ===== */
+    .content-note, .content-note-2 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      font-family: marker;
+      color: #4a148c;
+    }
+
+    .content-note {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .content-note-2 {
+      justify-content: start;
+      align-items: start;
+    }
+
+    .note, .note-2 {
+      background: #f8bbd0;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .note {
+      width: 300px;
+      height: 300px;
+      transform: rotate(-15deg);
+      font-size: 28px;
+    }
+
+    .note-2 {
+      width: 250px;
+      height: 250px;
+      transform: rotate(-7deg);
+      font-size: 28px;
+      margin-left: 20px;
+      margin-top: 30px;
+    }
+
+    /* ===== TIPOGRAFÍA Y TEXTOS ===== */
+    h3 {
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 1.3rem;
+    }
+
+    p, li {
+      font-size: 0.7rem;
+    }
+
+    .list {
+      list-style-type: none;
+      padding: 0px;
+      margin: 0px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .left {
+      text-align: left;
+    }
+
+    /* ===== TABLAS TIPO EXPEDIENTE ===== */
+    table.expediente {
+      width: 100%;
+      border-collapse: collapse; /* Elimina espacio entre celdas */
+      font-family: "Courier New", Courier, monospace; /* Fuente tipo máquina de escribir */
+      font-size: 14px;
+      margin: 10px 0px;
+    }
+
+    /* Encabezados de tabla */
+    table.expediente th {
+      background-color: #000;
+      color: #fff;
+      padding: 5px;
+      border: 1px solid #222; /* Opcional, más marcado */
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    /* Celdas del cuerpo */
+    table.expediente td {
+      padding: 8px 12px;
+      border: 1px solid rgba(0,0,0,0.1); /* Borde muy leve */
+      font-size: 0.7rem;
+    }
+
+    /* Filas alternadas para mejor legibilidad */
+    table.expediente tbody tr:nth-child(even) {
+      background-color: rgba(0,0,0,0.03);
+    }
+
+    /* ===== FUENTES PERSONALIZADAS ===== */
+    @font-face {
+      font-family: marker;
+      src: url(marker.ttf);
+    }
+
+    /* ===== MEDIA QUERIES ===== */
+    @media (max-width: 768px) {
+      .folder {
+        width: 90vw;
+        height: calc(90vw / 0.8);
+      }
+      
+      .folder-tab {
+        width: calc(90vw * 0.3125);
+        height: calc((90vw / 0.8) * 0.075);
+      }
+      
+      .deck {
+        width: 90%;
+        height: 90%;
+        top: 5%;
+        left: 5%;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      th, td, li {
+        font-size: 0.4rem !important;
+        padding: 0px !important;
+      }
+
+      td {
+        padding: 5px !important;
+      }
+
+      .lash {
+        right: -10px;
+        width: 20px;
+        height: 200px;
+      }
+
+      .content-note-2 .note-2 {
+        width: 100px;
+        height: 100px;
+        font-size: 0.7rem;
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+
+      .content-note .note {
+        width: 100px;
+        height: 100px;
+        font-size: 0.7rem;
+      }
+
+      .foto {
+        padding: 5px !important;
+      }
+
+      .ts {
+        right: -20px !important;
+        bottom: 20px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="desk">
+    <div class="folder" id="folder">
+      
+      <!-- TAPA DEL FOLDER -->
+      <div class="folder-top" id="folderTop">
+        <span class="lash"></span>
+        <div class="content-folder" id="content-folder">
+          <img src="c.png" class="confidential" alt="Sello confidencial">
+          <img src="ts.png" class="ts" alt="Elemento decorativo">
+          
+          <!-- NOTA ADHESIVA -->
+          <div class="content-note-2">
+            <div class="note-2">Solo el puede ayudarte contactalo</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CONTENEDOR DE HOJAS -->
+      <div class="deck" id="deck">
+        
+        <!-- HOJA 1: EXPEDIENTE SECRETO -->
+        <div class="sheet" data-index="0">
+          <div class="content-sheet">
+            <img src="foto.png" class="foto" alt="Foto del sospechoso">
+            <img src="clip.png" class="clip" alt="Clip sujetapapeles">
+            
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE SECRETO Nº791992</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Datos del sospechoso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Nombre: Bahimer Jesus Becerra Angel</li>
+                      <li>Alias: Fullstack</li>
+                      <li>Residencia registrada: San Cristobal, Venezuela</li>
+                      <li>Áreas de operación: Desarrollo de Software</li>
+                      <li>Estado: Activo</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Perfil del Sospechoso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sospechoso de alta peligrosidad en entornos digitales, capaz de infiltrarse en sistemas complejos y reconstruir arquitecturas desde cero. Cada operación deja evidencia de eficiencia, escalabilidad y precisión quirúrgica, asegurando que todos los elementos del proyecto queden perfectamente alineados y funcionales.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Opera con control absoluto sobre todos los frentes: front-end, back-end y sistemas móviles. Su intervención es silenciosa pero decisiva, integrando componentes dispares, neutralizando errores y asegurando que cada proyecto cumpla su objetivo sin dejar rastros de inconsistencias.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha dejado su marca en múltiples "escenas de código": aplicaciones web, móviles y sistemas backend. Cada operación refleja planificación estratégica, resolución rápida de problemas y dominio total sobre la arquitectura, dejando proyectos limpios, eficientes y robustos.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Experto en integración de sistemas, gestión de bases de datos y optimización de procesos. Su habilidad para anticipar fallos y neutralizarlos antes de que afecten la operación lo convierte en un recurso crítico, capaz de mantener cualquier proyecto bajo control absoluto.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <img src="conf.webp" class="conf-b" alt="Fondo confidencial">
+          </div>
+        </div>
+        <!-- FIN HOJA 1 -->
+        
+        <!-- HOJA 2: OPERACIONES VISUALES -->
+        <div class="sheet" data-index="1">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES VISUALES</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Maquetador de interfaces visuales</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Experto en integración de sistemas, gestión de bases de datos y optimización de procesos. Su habilidad para anticipar fallos y neutralizarlos antes de que afecten la operación lo convierte en un recurso crítico, capaz de mantener cualquier proyecto bajo control absoluto.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en CSS y Animaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Domina layouts complejos, grids, flexbox y animaciones CSS avanzadas. Cada transición, efecto y microinteracción es implementada con precisión, garantizando que la experiencia del usuario sea fluida y atractiva. Su trabajo asegura interfaces dinámicas y consistentes, listas para integrarse con cualquier sistema.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Control Total del DOM con JavaScript</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Especialista en manipulación de elementos y eventos, asegurando que cada componente responda perfectamente a la interacción del usuario. Su intervención permite implementar comportamientos complejos, animaciones sincronizadas y procesos interactivos sin errores. Cada operación refleja eficiencia, creatividad y dominio absoluto sobre la interfaz.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>HTML</li>
+                      <li>CSS</li>
+                      <li>Javascript</li>
+                      <li>Bootstrap</li>
+                      <li>Materialize</li>
+                      <li>Tailwind</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 2 -->
+        
+        <!-- HOJA 3: OPERACIONES DIGITALES -->
+        <div class="sheet" data-index="2">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES DIGITALES</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operativo en Frameworks JavaScript</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capaz de orquestar aplicaciones complejas usando frameworks modernos de JavaScript. Domina la creación de componentes reutilizables, gestión de estados y rutas, asegurando que cada sistema sea escalable, eficiente y mantenible. Su intervención garantiza proyectos robustos y confiables, alineados con los objetivos del cliente.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en Frameworks JS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Opera con control absoluto sobre Angular, React, Vue y SolidJS, implementando componentes dinámicos y gestionando el flujo de datos con precisión quirúrgica. Cada operación asegura una experiencia de usuario fluida y un rendimiento óptimo, integrando animaciones y lógica de manera impecable.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha desplegado aplicaciones web interactivas y escalables, dejando evidencia de planificación estratégica y ejecución impecable. Su intervención garantiza consistencia en la arquitectura, modularidad y fácil mantenimiento, reflejando dominio absoluto sobre frameworks modernos de JavaScript.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Angular</li>
+                      <li>React</li>
+                      <li>Vue</li>
+                      <li>SolidJS</li>
+                      <li>Redux / Zustand</li>
+                      <li>React Router / Vue Router</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 3 -->
+        
+        <!-- HOJA 4: OPERACIONES MÓVILES -->
+        <div class="sheet" data-index="3">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES MÓVILES</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operativo en Desarrollo de Aplicaciones Híbridas y Nativas</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capaz de crear Progressive Web Apps y aplicaciones móviles híbridas usando Ionic, así como aplicaciones nativas con React Native. Su intervención asegura interfaces intuitivas, rendimiento óptimo y experiencia consistente en múltiples plataformas. Cada proyecto refleja escalabilidad, robustez y adaptación a distintos dispositivos y sistemas operativos.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en Desarrollo Móvil</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Opera controlando componentes, navegación y lógica de interacción para garantizar fluidez y rendimiento. Implementa funcionalidades nativas y módulos híbridos, sincronizando datos y animaciones con precisión. Cada operación asegura que la app funcione de manera consistente y eficiente, cumpliendo con los estándares de cada plataforma.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha desplegado PWA y aplicaciones móviles híbridas y nativas con éxito, garantizando rendimiento, usabilidad y escalabilidad. Cada proyecto refleja planificación estratégica, ejecución precisa y adaptación perfecta a dispositivos y sistemas operativos diversos.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Ionic (PWA y Apps Híbridas)</li>
+                      <li>React Native (Apps Nativas)</li>
+                      <li>Integración con APIs REST</li>
+                      <li>Componentes reutilizables</li>
+                      <li>Animaciones y navegación avanzada</li>
+                      <li>Optimización para Android y iOS</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 4 -->
+        
+        <!-- HOJA 5: OPERACIONES BACKEND -->
+        <div class="sheet" data-index="4">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES BACKEND</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operativo en Lenguajes Backend y Automatización</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capaz de diseñar y mantener sistemas backend robustos usando PHP, Python y Node.js. Experto en generación de reportes, web scraping, scripts de automatización, domótica y conexión con bases de datos. Su intervención asegura eficiencia, seguridad y escalabilidad en cada operación, optimizando flujos de información críticos.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en Backend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Opera con control absoluto sobre la lógica del servidor y la manipulación de datos. Implementa web services, APIs y automatizaciones precisas para garantizar operaciones seguras y consistentes. Cada script o proceso es planificado y ejecutado con precisión quirúrgica, minimizando riesgos y maximizando rendimiento.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha desplegado sistemas backend escalables, eficientes y confiables. Cada operación refleja planificación estratégica, integración con bases de datos y servicios externos, y ejecución impecable. Los proyectos supervisados demuestran dominio absoluto sobre lenguajes backend y procesos de automatización complejos.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>PHP</li>
+                      <li>Python</li>
+                      <li>Node.js</li>
+                      <li>Web Services / APIs</li>
+                      <li>Scraping / Automatización</li>
+                      <li>Conexión con bases de datos</li>
+                      <li>Domótica y scripts personalizados</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 5 -->
+        
+        <!-- HOJA 6: OPERACIONES BACKEND AVANZADAS -->
+        <div class="sheet" data-index="5">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES BACKEND AVANZADAS</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operativo en Frameworks Backend y Seguridad de Aplicaciones</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capaz de desarrollar proyectos robustos siguiendo patrones MVC y creando APIs REST seguras. Domina frameworks como Laravel, Yii, Symfony, CodeIgniter, Express y Flask, integrando sistemas con roles de usuario, permisos y autenticación mediante JWT. Cada operación garantiza seguridad, escalabilidad y eficiencia en la arquitectura backend.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en Frameworks Backend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Implementa lógica compleja del servidor, controlando rutas, controladores y modelos con precisión. Cada API, endpoint y proceso de autenticación es planeado y ejecutado para minimizar vulnerabilidades y maximizar rendimiento. Sus operaciones aseguran integridad de datos y consistencia en cada flujo de información.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha ejecutado proyectos backend avanzados, combinando frameworks sólidos con prácticas de seguridad y control de acceso. Cada intervención refleja planificación estratégica, eficiencia en el manejo de usuarios y roles, y ejecución impecable de APIs y sistemas escalables.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Laravel</li>
+                      <li>Yii</li>
+                      <li>Symfony</li>
+                      <li>CodeIgniter</li>
+                      <li>Express</li>
+                      <li>Flask</li>
+                      <li>MVC</li>
+                      <li>APIs REST</li>
+                      <li>JWT / Manejo de roles y permisos</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 6 -->
+        
+        <!-- HOJA 7: OPERACIONES DE SISTEMA -->
+        <div class="sheet" data-index="6">
+          <div class="content-sheet">
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="center">EXPEDIENTE DE OPERACIONES DE SISTEMA</th>
+                </tr>
+              </thead>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operativo en Administración de Sistemas y Contenedores</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Especialidades del Caso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Capaz de administrar sistemas Linux a nivel de configuración, seguridad y gestión de servicios de red. Experto en implementar y supervisar contenedores Docker, asegurando entornos aislados, reproducibles y eficientes. Controla versiones y colaboraciones mediante Git, garantizando un historial de operaciones seguro y confiable.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Modus Operandi en Sistemas y Contenedores</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Opera con control total sobre la administración de sistemas y despliegue de servicios. Implementa contenedores Docker para proyectos escalables y reproducibles, gestionando imágenes, volúmenes y redes con precisión. Git se utiliza para versionar, coordinar y auditar operaciones, asegurando trazabilidad y seguridad en cada cambio.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Registro de Operaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Desde 2017 ha gestionado sistemas Linux, contenedores Docker y repositorios Git para múltiples proyectos. Cada operación refleja planificación estratégica, control de seguridad y eficiencia en la administración de entornos, garantizando estabilidad, escalabilidad y colaboración segura.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="expediente">
+              <thead>
+                <tr>
+                  <th class="left">Arsenal Tecnológico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <ul class="list">
+                      <li>Linux (Administración y Seguridad)</li>
+                      <li>Docker (Contenedores y Orquestación)</li>
+                      <li>Git (Control de Versiones)</li>
+                      <li>Gestión de Servicios de Red</li>
+                      <li>Automatización de Entornos</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <img src="expert.webp" class="exp left" alt="Fondo de experiencia">
+          </div>
+        </div>
+        <!-- FIN HOJA 7 -->
+        
+        <!-- NOTA FINAL -->
+        <div class="content-note">
+          <div class="note">Llamar solo en caso de emergencia +584243442185</div>
+        </div>
+      </div>
+      <!-- FIN CONTENEDOR DE HOJAS -->
+      
+    </div>
+  </div>
+
+  <script>
+    // ===== ANIMACIONES CON SCROLL =====
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
+    const folderTop = document.getElementById('folderTop');
+    const contentFolder = document.getElementById('content-folder');
+    const totalScroll = document.body.scrollHeight - window.innerHeight;
+
+    window.addEventListener('scroll', () => {
+      const scroll = window.scrollY;
+      const progress = scroll / totalScroll;
+
+      // Apertura lateral del folder
+      const openStart = 0;
+      const openEnd = 0.15;
+      let openProg = (progress - openStart) / (openEnd - openStart);
+      openProg = Math.min(Math.max(openProg, 0), 1);
+      const openAngle = -Math.sin(openProg * Math.PI/2) * 180;
+      folderTop.style.transform = `rotateY(${openAngle}deg)`;
+      contentFolder.style.opacity = (openAngle >= -180 && openAngle <= -90) ? 0 : 1;
+
+      // Movimiento de hojas
+      const moveStart = 0.15;
+      const moveEnd = 1;
+      let moveProg = (progress - moveStart) / (moveEnd - moveStart);
+      moveProg = Math.min(Math.max(moveProg, 0), 1);
+      const step = 1 / sheets.length;
+
+      sheets.forEach((sheet, i) => {
+        const content = sheet.querySelector('.content-sheet');
+        const start = step * i;
+        const end = step * (i + 1);
+        let localProg = (moveProg - start) / (end - start);
+        localProg = Math.min(Math.max(localProg, 0), 1);
+
+        const translateX = Math.pow(localProg, 1.4) * 700;
+        const translateY = i * 2;
+        const translateZ = Math.sin(localProg * Math.PI) * -50;
+        const rotateY = localProg * 180;
+        const rotateX = Math.sin(localProg * Math.PI * 2) * 5;
+        const rotateZ = Math.sin(localProg * Math.PI) * 3;
+
+        sheet.style.transform = `
+          translate3d(${translateX}px, ${translateY}px, ${translateZ}px)
+          rotateX(${rotateX}deg)
+          rotateY(${rotateY}deg)
+          rotateZ(${rotateZ}deg)
+        `;
+        content.style.opacity = (rotateY >= 90 && rotateY <= 270) ? 0 : 1;
+        sheet.style.zIndex = (rotateY > 80 && rotateY < 100) ? 50 - i : 100 - i;
+        sheet.style.boxShadow = translateX > 400 ? "none" : "0 6px 12px rgba(0,0,0,0.1)";
+      });
+    });
+  </script>
+</body>
+</html>
