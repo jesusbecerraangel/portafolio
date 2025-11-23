@@ -130,6 +130,7 @@
       overflow: visible;
       box-sizing: border-box;
       padding: 30px;
+      box-shadow: 0px 0px 20px rgba(0,0,0,0.1);
     }
 
     .content {
@@ -401,7 +402,7 @@
           
           <!-- NOTA ADHESIVA -->
           <div class="content-note-2">
-            <div class="note-2">Solo el puede resolver tu mision tecnologica</div>
+            <div class="note-2">Solo el puede ayudarte llamalo</div>
           </div>
         </div>
       </div>
@@ -940,7 +941,7 @@
         
         <!-- NOTA FINAL -->
         <div class="content-note">
-          <div class="note">Contactar solo para misiones de alto impacto +584243442185</div>
+          <div class="note">Contactar solo en casos de emergencia +584243442185</div>
         </div>
       </div>
       <!-- FIN CONTENEDOR DE HOJAS -->
@@ -966,7 +967,8 @@
       openProg = Math.min(Math.max(openProg, 0), 1);
       const openAngle = -Math.sin(openProg * Math.PI/2) * 180;
       folderTop.style.transform = `rotateY(${openAngle}deg)`;
-      contentFolder.style.opacity = (openAngle >= -180 && openAngle <= -90) ? 0 : 1;
+      // console.log("angle: -- ", openAngle )
+      contentFolder.style.opacity = ( openAngle <= -80) ? 0 : 1;//(openAngle >= -170 && openAngle <= -90) ? 0 : 1;
 
       // Movimiento de hojas
       const moveStart = 0.15;
@@ -995,8 +997,11 @@
           rotateY(${rotateY}deg)
           rotateZ(${rotateZ}deg)
         `;
+
+        console.log("Hoja: -- ", rotateY )
+
         content.style.opacity = (rotateY >= 90 && rotateY <= 270) ? 0 : 1;
-        sheet.style.zIndex = (rotateY > 80 && rotateY < 100) ? 50 - i : 100 - i;
+        sheet.style.zIndex = (rotateY > 150 && rotateY < 180) ? 50 - i : 100 - i; // (rotateY > 80 && rotateY < 100) ? 50 - i : 100 - i;
         sheet.style.boxShadow = translateX > 400 ? "none" : "0 6px 12px rgba(0,0,0,0.1)";
       });
     });
