@@ -320,6 +320,61 @@
       background-color: rgba(0,0,0,0.03);
     }
 
+    /* ===== INDICADOR DE SCROLL ===== */
+    .scroll-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      z-index: 10000;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      animation: pulse 2s infinite;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .scroll-indicator.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .scroll-indicator .arrow {
+      font-size: 1.2rem;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-5px);
+      }
+      60% {
+        transform: translateY(-3px);
+      }
+    }
+
     /* ===== FUENTES PERSONALIZADAS ===== */
     @font-face {
       font-family: marker;
@@ -343,6 +398,11 @@
         height: 90%;
         top: 5%;
         left: 5%;
+      }
+      
+      .scroll-indicator {
+        font-size: 0.7rem;
+        padding: 8px 12px;
       }
     }
 
@@ -384,11 +444,24 @@
         right: -20px !important;
         bottom: 20px !important;
       }
+      
+      .scroll-indicator {
+        font-size: 0.6rem;
+        padding: 6px 10px;
+        bottom: 15px;
+        right: 15px;
+      }
     }
   </style>
 </head>
 
 <body>
+  <!-- INDICADOR DE SCROLL -->
+  <div class="scroll-indicator" id="scrollIndicator">
+    <span>Desplázate</span>
+    <div class="arrow">↓</div>
+  </div>
+
   <!-- CONTENEDOR PRINCIPAL -->
   <div class="desk">
     <div class="folder" id="folder">
@@ -955,10 +1028,19 @@
     const folderTop = document.getElementById('folderTop');
     const contentFolder = document.getElementById('content-folder');
     const totalScroll = document.body.scrollHeight - window.innerHeight;
+    const scrollIndicator = document.getElementById('scrollIndicator');
 
+    // Ocultar el indicador después de cierto scroll
     window.addEventListener('scroll', () => {
       const scroll = window.scrollY;
       const progress = scroll / totalScroll;
+      
+      // Ocultar el indicador después de cierto progreso de scroll
+      if (progress > 0.1) {
+        scrollIndicator.classList.add('hidden');
+      } else {
+        scrollIndicator.classList.remove('hidden');
+      }
 
       // Apertura lateral del folder
       const openStart = 0;
@@ -1003,6 +1085,14 @@
         content.style.opacity = (rotateY >= 90 && rotateY <= 270) ? 0 : 1;
         sheet.style.zIndex = (rotateY > 150 && rotateY < 180) ? 50 - i : 100 - i; // (rotateY > 80 && rotateY < 100) ? 50 - i : 100 - i;
         sheet.style.boxShadow = translateX > 400 ? "none" : "0 6px 12px rgba(0,0,0,0.1)";
+      });
+    });
+
+    // Hacer scroll suave al hacer clic en el indicador
+    scrollIndicator.addEventListener('click', () => {
+      window.scrollTo({
+        top: window.innerHeight * 0.2,
+        behavior: 'smooth'
       });
     });
   </script>
